@@ -14,3 +14,6 @@
 *.csproj
 *.log
 *.sln
+/PokerVisConsole/PokerVisConsole/.vs/PokerVisConsole/v15
+/PokerVisConsole/PokerVisConsole/PokerVisConsole/bin/Debug
+/PokerVisConsole/PokerVisConsole/PokerVisConsole/obj/Debug
