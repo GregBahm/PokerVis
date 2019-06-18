@@ -3,6 +3,7 @@ using System.Linq;
 
 public static class Deck
 {
+    private static System.Random random = new System.Random();
     public static IReadOnlyList<Card> Cards { get; } = GetCards();
 
     private static IReadOnlyList<Card> GetCards()
@@ -24,7 +25,7 @@ public static class Deck
         List<Card> ret = new List<Card>();
         for (int i = 0; i < 52; i++)
         {
-            int nextIndex = UnityEngine.Random.Range(0, 52 - i);
+            int nextIndex = random.Next(0, 52 - i);
             ret.Add(baseDeck[nextIndex]);
             baseDeck.RemoveAt(nextIndex);
         }

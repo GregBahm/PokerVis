@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 public class Hand : IComparable<Hand>
 {
@@ -40,8 +39,8 @@ public class Hand : IComparable<Hand>
         {
             int pairA = pairs[0].First().Value;
             int pairB = pairs[1].First().Value;
-            TwoPairValue = Mathf.Max(pairA, pairB);
-            PairValue = Mathf.Min(pairA, pairB);
+            TwoPairValue = Math.Max(pairA, pairB);
+            PairValue = Math.Min(pairA, pairB);
         }
         else if(pairs.Length == 1)
         {
