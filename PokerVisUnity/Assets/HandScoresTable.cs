@@ -1,24 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
-public class HandScoresTable
+public static class HandScoresTable
 {
     public const int TotalPossibleHands = 2598960;
 
-    public IReadOnlyList<HandScore> StraightFlushes { get; }
-    public IReadOnlyList<HandScore> FourOfAKinds { get; }
-    public IReadOnlyList<HandScore> FullHouses { get; }
-    public IReadOnlyList<HandScore> Flushes { get; }
-    public IReadOnlyList<HandScore> Straights { get; }
-    public IReadOnlyList<HandScore> ThreeOfAKinds { get; }
-    public IReadOnlyList<HandScore> TwoPairs { get; }
-    public IReadOnlyList<HandScore> Pairs { get; }
-    public IReadOnlyList<HandScore> HighCards { get; }
+    public static IReadOnlyList<HandScore> StraightFlushes { get; }
+    public static IReadOnlyList<HandScore> FourOfAKinds { get; }
+    public static IReadOnlyList<HandScore> FullHouses { get; }
+    public static IReadOnlyList<HandScore> Flushes { get; }
+    public static IReadOnlyList<HandScore> Straights { get; }
+    public static IReadOnlyList<HandScore> ThreeOfAKinds { get; }
+    public static IReadOnlyList<HandScore> TwoPairs { get; }
+    public static IReadOnlyList<HandScore> Pairs { get; }
 
-    public IReadOnlyDictionary<string, HandScore> All { get; }
-    public IReadOnlyDictionary<string, ScoreProbabilities> Probabilities { get; }
+    public static IReadOnlyList<HandScore> HighCards { get; }
 
-    public HandScoresTable()
+    public static IReadOnlyDictionary<string, HandScore> All { get; }
+    public static IReadOnlyDictionary<string, ScoreProbabilities> Probabilities { get; }
+
+    static HandScoresTable()
     {
         StraightFlushes = HandScore.GetStraightFlushes().ToList().AsReadOnly();
         FourOfAKinds = HandScore.GetFourOfAKinds().ToList().AsReadOnly();
@@ -44,7 +46,7 @@ public class HandScoresTable
         Probabilities = GetScoreProbabilities();
     }
 
-    private Dictionary<string, ScoreProbabilities> GetScoreProbabilities()
+    private static Dictionary<string, ScoreProbabilities> GetScoreProbabilities()
     {
         Dictionary<string, ScoreProbabilities> ret = new Dictionary<string, ScoreProbabilities>();
         int betterHands = 0;

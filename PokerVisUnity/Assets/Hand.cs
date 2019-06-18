@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class Hand : IComparable<Hand>
 {
     public IReadOnlyList<Card> Cards { get; }
-    
+
     public int StraightFlushValue { get; }
     public int FourOfAKindValue { get; }
     public int FullHouseThreeCardValue { get; }
@@ -15,9 +16,12 @@ public class Hand : IComparable<Hand>
     public int ThreeOfAKindValue { get; }
     public int TwoPairValue { get; }
     public int PairValue { get; }
-    
+
+    public HandScore Score { get; }
+    public ScoreProbabilities Probabilities { get; }
+
     public Hand(Card cardA, Card cardB, Card cardC, Card cardD, Card cardE)
-        :this(new List<Card> { cardA, cardB, cardC, cardD, cardE})
+        : this(new List<Card> { cardA, cardB, cardC, cardD, cardE })
     { }
     public Hand(List<Card> cards)
     {
@@ -34,15 +38,15 @@ public class Hand : IComparable<Hand>
         ThreeOfAKindValue = GetThreeOfAKindValue(grouped);
 
         IGrouping<int, Card>[] pairs = grouped.Where(item => item.Count() == 2).ToArray();
-        
-        if(pairs.Length == 2)
+
+        if (pairs.Length == 2)
         {
             int pairA = pairs[0].First().Value;
             int pairB = pairs[1].First().Value;
             TwoPairValue = Math.Max(pairA, pairB);
             PairValue = Math.Min(pairA, pairB);
         }
-        else if(pairs.Length == 1)
+        else if (pairs.Length == 1)
         {
             if (ThreeOfAKindValue > 0)
             {
@@ -55,8 +59,16 @@ public class Hand : IComparable<Hand>
                 PairValue = pairs[0].First().Value;
             }
         }
-    }
 
+        string scoreTablesKey = HandScore.GetHandScoreKey(this);
+        if(!HandScoresTable.All.ContainsKey(scoreTablesKey))
+        {
+            Debug.Log(scoreTablesKey);
+        }
+        Score = HandScoresTable.All[scoreTablesKey];
+        Probabilities = HandScoresTable.Probabilities[scoreTablesKey];
+    }
+    
     private int GetThreeOfAKindValue(IGrouping<int, Card>[] grouped)
     {
         IGrouping<int, Card> grouping = grouped.FirstOrDefault(item => item.Count() == 3);
@@ -70,7 +82,7 @@ public class Hand : IComparable<Hand>
     private int GetFourOfAKindValue(IGrouping<int, Card>[] grouped)
     {
         IGrouping<int, Card> grouping = grouped.FirstOrDefault(item => item.Count() == 4);
-        if(grouping != null)
+        if (grouping != null)
         {
             return grouping.First().Value;
         }
@@ -79,7 +91,7 @@ public class Hand : IComparable<Hand>
 
     private int GetStraightFlushValue()
     {
-        if(StraightValue > 0 && IsFlush)
+        if (StraightValue > 0 && IsFlush)
         {
             return StraightValue;
         }
@@ -89,24 +101,24 @@ public class Hand : IComparable<Hand>
     private int GetStraightValue()
     {
         bool isLowAceStraight = GetIsLowAceStraight();
-        if(isLowAceStraight)
+        if (isLowAceStraight)
         {
             return 5;
         }
         for (int i = 1; i < 5; i++)
         {
-            int neededValue = Cards[i - 1].Value + 1;
-            if(Cards[i].Value != neededValue)
+            int neededValue = Cards[i - 1].Value - 1;
+            if (Cards[i].Value != neededValue)
             {
                 return 0;
             }
         }
-        return Cards[4].Value;
+        return Cards[0].Value;
     }
 
     private bool GetIsLowAceStraight()
     {
-        return Cards[4].Value == 14 && Cards[3].Value == 5 && Cards[2].Value == 4 && Cards[1].Value == 3 && Cards[0].Value == 2;
+        return Cards[0].Value == 14 && Cards[1].Value == 5 && Cards[2].Value == 4 && Cards[3].Value == 3 && Cards[4].Value == 2;
     }
 
     private bool GetIsFlush()
@@ -117,7 +129,7 @@ public class Hand : IComparable<Hand>
     public int CompareTo(Hand other)
     {
         if (other == null) return 1;
-        
+
         int straightFlush = StraightFlushValue.CompareTo(other.StraightFlushValue);
         if (straightFlush != 0)
         {
@@ -125,7 +137,7 @@ public class Hand : IComparable<Hand>
         }
 
         int fourOfAKind = FourOfAKindValue.CompareTo(other.FourOfAKindValue);
-        if(fourOfAKind != 0)
+        if (fourOfAKind != 0)
         {
             return fourOfAKind;
         }
@@ -143,42 +155,42 @@ public class Hand : IComparable<Hand>
         }
 
         int isFlush = IsFlush.CompareTo(other.IsFlush);
-        if(isFlush != 0)
+        if (isFlush != 0)
         {
             return isFlush;
         }
 
-        if(IsFlush && other.IsFlush)
+        if (IsFlush && other.IsFlush)
         {
-             return CompareHighCard(other);
+            return CompareHighCard(other);
         }
 
         int straight = StraightValue.CompareTo(other.StraightValue);
-        if(straight != 0)
+        if (straight != 0)
         {
             return straight;
         }
 
         int threeOfAKind = ThreeOfAKindValue.CompareTo(other.ThreeOfAKindValue);
-        if(threeOfAKind != 0)
+        if (threeOfAKind != 0)
         {
             return threeOfAKind;
         }
 
         int twoPair = TwoPairValue.CompareTo(other.TwoPairValue);
-        if(twoPair != 0)
+        if (twoPair != 0)
         {
             return twoPair;
         }
 
         int pairValue = PairValue.CompareTo(other.PairValue);
-        if(pairValue != 0)
+        if (pairValue != 0)
         {
             return pairValue;
         }
 
         return CompareHighCard(other);
-        
+
     }
 
     private int CompareHighCard(Hand other)

@@ -80,7 +80,7 @@ public class Card : IComparable<Card>
     public int CompareTo(Card other)
     {
         if (other == null) return 1;
-        return Value.CompareTo(other.Value);
+        return Value.CompareTo(other.Value) * -1;
     }
 
     public override string ToString()
