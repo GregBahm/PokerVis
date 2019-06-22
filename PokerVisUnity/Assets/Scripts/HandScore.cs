@@ -393,7 +393,7 @@ public class HandScore
 
     private static string GetFourOfAKindKey(Hand hand)
     {
-        int otherCard = hand.Cards.First(item => item.Value != hand.FourOfAKindValue).Value;
+        int otherCard = hand.Cards[0].Value == hand.FourOfAKindValue ? hand.Cards[4].Value : hand.Cards[0].Value;
         return GetFourOfAKindKey(hand.FourOfAKindValue, otherCard);
     }
 

@@ -1,24 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-
-public class Mainscript : MonoBehaviour
-{
-    private HandState state;
-    
-    private void Start()
-    {
-        state = new HandState();
-        state.CardA = Deck.Cards[0];
-        Hand[] hands = state.GetAllPotentialHands().ToArray();
-        Debug.Log(hands.Length);
-    }
-    
-}
+﻿using System.Collections.Generic;
 
 public class HandState
 {
@@ -85,7 +65,7 @@ public class HandState
             {
                 if(!indexesToSkip[i])
                 {
-                    IEnumerable<Hand> retItems = CardBHands(i, indexesToSkip);
+                    IEnumerable<Hand> retItems = CardBHands(i, indexesToSkip, i + 1);
                     ret.AddRange(retItems);
                 }
             }
@@ -93,20 +73,20 @@ public class HandState
         }
         else
         {
-            return CardBHands(CardA.DeckIndex, indexesToSkip);
+            return CardBHands(CardA.DeckIndex, indexesToSkip, 0);
         }
     }
 
-    private IEnumerable<Hand> CardBHands(int cardAIndex, bool[] indexesToSkip)
+    private IEnumerable<Hand> CardBHands(int cardAIndex, bool[] indexesToSkip, int searchStart)
     {
         if (CardB == null)
         {
             List<Hand> ret = new List<Hand>();
-            for (int i = 0; i < 52; i++)
+            for (int i = searchStart; i < 52; i++)
             {
                 if (!indexesToSkip[i] && i != cardAIndex)
                 {
-                    IEnumerable<Hand> retItems = CardCHands(cardAIndex, i, indexesToSkip);
+                    IEnumerable<Hand> retItems = CardCHands(cardAIndex, i, indexesToSkip, i + 1);
                     ret.AddRange(retItems);
                 }
             }
@@ -114,19 +94,19 @@ public class HandState
         }
         else
         {
-            return CardCHands(cardAIndex, CardB.DeckIndex, indexesToSkip);
+            return CardCHands(cardAIndex, CardB.DeckIndex, indexesToSkip, searchStart + 1);
         }
     }
-    private IEnumerable<Hand> CardCHands(int cardAIndex, int cardBIndex, bool[] indexesToSkip)
+    private IEnumerable<Hand> CardCHands(int cardAIndex, int cardBIndex, bool[] indexesToSkip, int searchStart)
     {
         if (CardC == null)
         {
             List<Hand> ret = new List<Hand>();
-            for (int i = 0; i < 52; i++)
+            for (int i = searchStart; i < 52; i++)
             {
                 if (!indexesToSkip[i] && i != cardAIndex && i != cardBIndex)
                 {
-                    IEnumerable<Hand> retItems = CardDHands(cardAIndex, cardBIndex, i, indexesToSkip);
+                    IEnumerable<Hand> retItems = CardDHands(cardAIndex, cardBIndex, i, indexesToSkip, i + 1);
                     ret.AddRange(retItems);
                 }
             }
@@ -134,19 +114,19 @@ public class HandState
         }
         else
         {
-            return CardDHands(cardAIndex, cardBIndex, CardC.DeckIndex, indexesToSkip);
+            return CardDHands(cardAIndex, cardBIndex, CardC.DeckIndex, indexesToSkip, searchStart + 1);
         }
     }
-    private IEnumerable<Hand> CardDHands(int cardAIndex, int cardBIndex, int cardCIndex, bool[] indexesToSkip)
+    private IEnumerable<Hand> CardDHands(int cardAIndex, int cardBIndex, int cardCIndex, bool[] indexesToSkip, int searchStart)
     {
         if (CardD == null)
         {
             List<Hand> ret = new List<Hand>();
-            for (int i = 0; i < 52; i++)
+            for (int i = searchStart; i < 52; i++)
             {
                 if (!indexesToSkip[i] && i != cardAIndex && i != cardBIndex && i != cardCIndex)
                 {
-                    IEnumerable<Hand> retItems = CardEHands(cardAIndex, cardBIndex, cardCIndex, i);
+                    IEnumerable<Hand> retItems = CardEHands(cardAIndex, cardBIndex, cardCIndex, i, i + 1);
                     ret.AddRange(retItems);
                 }
             }
@@ -154,15 +134,15 @@ public class HandState
         }
         else
         {
-            return CardEHands(cardAIndex, cardBIndex, cardCIndex, CardD.DeckIndex);
+            return CardEHands(cardAIndex, cardBIndex, cardCIndex, CardD.DeckIndex, searchStart + 1);
         }
     }
 
-    private IEnumerable<Hand> CardEHands(int cardAIndex, int cardBIndex, int cardCIndex, int cardDIndex)
+    private IEnumerable<Hand> CardEHands(int cardAIndex, int cardBIndex, int cardCIndex, int cardDIndex, int searchStart)
     {
         if (CardE == null)
         {
-            for (int i = 0; i < 52; i++)
+            for (int i = searchStart; i < 52; i++)
             {
                 if (i != cardAIndex && i != cardBIndex && i != cardCIndex && i != cardDIndex)
                 {
