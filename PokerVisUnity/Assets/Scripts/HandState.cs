@@ -1,29 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 public class HandState
 {
-    private static IReadOnlyList<int> BaseDeckIndexes;
-
-    static HandState()
-    {
-        BaseDeckIndexes = GetBaseDeckIndexes();
-    }
-
-    private static IReadOnlyList<int> GetBaseDeckIndexes()
-    {
-        List<int> ret = new List<int>();
-        for (int i = 0; i < 52; i++)
-        {
-            ret.Add(i);
-        }
-        return ret;
-    }
-
     public Card CardA { get; set; }
     public Card CardB { get; set; }
     public Card CardC { get; set; }
     public Card CardD { get; set; }
     public Card CardE { get; set; }
+    public Card CardF { get; set; }
+    public Card CardG { get; set; }
 
     public IEnumerable<Card> Cards
     {
@@ -34,126 +22,69 @@ public class HandState
             yield return CardC;
             yield return CardD;
             yield return CardE;
+            yield return CardF;
+            yield return CardG;
         }
+    }
+    
+    public RandomHandGenerator GetRandomHandGenerator()
+    {
+        return new RandomHandGenerator(Cards);
+    }
+}
+
+public class RandomHandGenerator
+{
+    private Random random = new Random();
+    private static ReadOnlyCollection<int> BaseIndices;
+    static RandomHandGenerator()
+    {
+        BaseIndices = GetBaseIndices();
     }
 
-    public IEnumerable<Hand> GetAllPotentialHands()
+    private static ReadOnlyCollection<int> GetBaseIndices()
     {
-        bool[] indexesToSkip = GetIndexesToSkip();
-        return CardAHands(indexesToSkip);
+        List<int> baseIndices = new List<int>();
+        for (int i = 0; i < 52; i++)
+        {
+            baseIndices.Add(i);
+        }
+        return baseIndices.AsReadOnly();
     }
 
-    private bool[] GetIndexesToSkip()
+    private readonly List<Card> BaseCards;
+    private readonly ReadOnlyCollection<int> AvailableIndices;
+
+    public RandomHandGenerator(IEnumerable<Card> cards)
     {
-        bool[] ret = new bool[52];
-        foreach (Card card in Cards)
-        {
-            if (card != null)
-            {
-                ret[card.DeckIndex] = true;
-            }
-        }
-        return ret;
+        BaseCards = cards.Where(item => item != null).ToList();
+        
+        AvailableIndices = GetAvailableIndices();
     }
 
-    private IEnumerable<Hand> CardAHands(bool[] indexesToSkip)
+    private ReadOnlyCollection<int> GetAvailableIndices()
     {
-        if(CardA == null)
+        HashSet<int> availableIndices = new HashSet<int>(BaseIndices);
+        foreach (int val in BaseCards.Select(item => item.DeckIndex))
         {
-            List<Hand> ret = new List<Hand>();
-            for (int i = 0; i < 52; i++)
-            {
-                if(!indexesToSkip[i])
-                {
-                    IEnumerable<Hand> retItems = CardBHands(i, indexesToSkip, i + 1);
-                    ret.AddRange(retItems);
-                }
-            }
-            return ret;
+            availableIndices.Remove(val);
         }
-        else
-        {
-            return CardBHands(CardA.DeckIndex, indexesToSkip, 0);
-        }
+        return availableIndices.ToList().AsReadOnly();
     }
 
-    private IEnumerable<Hand> CardBHands(int cardAIndex, bool[] indexesToSkip, int searchStart)
+    public Hand GetRandomHand()
     {
-        if (CardB == null)
+        List<Card> cards = new List<Card>(7);
+        List<int> availableIndices = new List<int>(AvailableIndices);
+        cards.AddRange(BaseCards);
+        for (int remainingCards = BaseCards.Count; remainingCards < 7; remainingCards++)
         {
-            List<Hand> ret = new List<Hand>();
-            for (int i = searchStart; i < 52; i++)
-            {
-                if (!indexesToSkip[i] && i != cardAIndex)
-                {
-                    IEnumerable<Hand> retItems = CardCHands(cardAIndex, i, indexesToSkip, i + 1);
-                    ret.AddRange(retItems);
-                }
-            }
-            return ret;
+            int availableIndicesIndex = random.Next(availableIndices.Count);
+            int deckIndex = availableIndices[availableIndicesIndex];
+            availableIndices.RemoveAt(availableIndicesIndex);
+            Card card = Deck.Cards[deckIndex];
+            cards.Add(card);
         }
-        else
-        {
-            return CardCHands(cardAIndex, CardB.DeckIndex, indexesToSkip, searchStart + 1);
-        }
+        return Hand.GetBestHandFromSevenCards(cards);
     }
-    private IEnumerable<Hand> CardCHands(int cardAIndex, int cardBIndex, bool[] indexesToSkip, int searchStart)
-    {
-        if (CardC == null)
-        {
-            List<Hand> ret = new List<Hand>();
-            for (int i = searchStart; i < 52; i++)
-            {
-                if (!indexesToSkip[i] && i != cardAIndex && i != cardBIndex)
-                {
-                    IEnumerable<Hand> retItems = CardDHands(cardAIndex, cardBIndex, i, indexesToSkip, i + 1);
-                    ret.AddRange(retItems);
-                }
-            }
-            return ret;
-        }
-        else
-        {
-            return CardDHands(cardAIndex, cardBIndex, CardC.DeckIndex, indexesToSkip, searchStart + 1);
-        }
-    }
-    private IEnumerable<Hand> CardDHands(int cardAIndex, int cardBIndex, int cardCIndex, bool[] indexesToSkip, int searchStart)
-    {
-        if (CardD == null)
-        {
-            List<Hand> ret = new List<Hand>();
-            for (int i = searchStart; i < 52; i++)
-            {
-                if (!indexesToSkip[i] && i != cardAIndex && i != cardBIndex && i != cardCIndex)
-                {
-                    IEnumerable<Hand> retItems = CardEHands(cardAIndex, cardBIndex, cardCIndex, i, i + 1);
-                    ret.AddRange(retItems);
-                }
-            }
-            return ret;
-        }
-        else
-        {
-            return CardEHands(cardAIndex, cardBIndex, cardCIndex, CardD.DeckIndex, searchStart + 1);
-        }
-    }
-
-    private IEnumerable<Hand> CardEHands(int cardAIndex, int cardBIndex, int cardCIndex, int cardDIndex, int searchStart)
-    {
-        if (CardE == null)
-        {
-            for (int i = searchStart; i < 52; i++)
-            {
-                if (i != cardAIndex && i != cardBIndex && i != cardCIndex && i != cardDIndex)
-                {
-                    yield return new Hand(Deck.Cards[cardAIndex], Deck.Cards[cardBIndex], Deck.Cards[cardCIndex], Deck.Cards[cardDIndex], Deck.Cards[i]);
-                }
-            }
-        }
-        else
-        {
-            yield return new Hand(Deck.Cards[cardAIndex], Deck.Cards[cardBIndex], Deck.Cards[cardCIndex], Deck.Cards[cardDIndex], Deck.Cards[CardE.DeckIndex]);
-        }
-    }
-
 }

@@ -51,10 +51,12 @@ public static class HandScoresTable
         Dictionary<string, ScoreProbabilities> ret = new Dictionary<string, ScoreProbabilities>();
         int betterHands = 0;
         int worseHands = TotalPossibleHands;
+        int rank = 0;
         foreach (KeyValuePair<string, HandScore> entry in All)
         {
             worseHands -= entry.Value.Repeats;
-            ScoreProbabilities probabilities = new ScoreProbabilities(betterHands, worseHands);
+            ScoreProbabilities probabilities = new ScoreProbabilities(betterHands, worseHands, rank);
+            rank++;
             ret.Add(entry.Key, probabilities);
             betterHands += entry.Value.Repeats;
         }

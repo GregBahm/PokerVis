@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class Hand : IComparable<Hand>
 {
@@ -22,10 +23,14 @@ public class Hand : IComparable<Hand>
     public Hand(Card cardA, Card cardB, Card cardC, Card cardD, Card cardE)
         : this(new List<Card> { cardA, cardB, cardC, cardD, cardE })
     { }
-    public Hand(List<Card> cards)
+    public Hand(List<Card> cards, bool cardsAreUnsorted = true)
     {
-        cards.Sort();
+        if(cardsAreUnsorted)
+        {
+            cards.Sort();
+        }
         Cards = cards.AsReadOnly();
+        Debug.Assert(Cards.Count == 5, "Creating hand with " + Cards.Count + " cards instead of 5 cards");
 
         IsFlush = GetIsFlush();
         StraightValue = GetStraightValue();
@@ -137,68 +142,7 @@ public class Hand : IComparable<Hand>
     public int CompareTo(Hand other)
     {
         if (other == null) return 1;
-
-        int straightFlush = StraightFlushValue.CompareTo(other.StraightFlushValue);
-        if (straightFlush != 0)
-        {
-            return straightFlush;
-        }
-
-        int fourOfAKind = FourOfAKindValue.CompareTo(other.FourOfAKindValue);
-        if (fourOfAKind != 0)
-        {
-            return fourOfAKind;
-        }
-
-        int fullHouseThreeCard = FullHouseThreeCardValue.CompareTo(other.FullHouseThreeCardValue);
-        if (fullHouseThreeCard != 0)
-        {
-            return fullHouseThreeCard;
-        }
-
-        int fullHouseTwoCard = FullHouseTwoCardValue.CompareTo(other.FullHouseTwoCardValue);
-        if (fullHouseTwoCard != 0)
-        {
-            return fullHouseTwoCard;
-        }
-
-        int isFlush = IsFlush.CompareTo(other.IsFlush);
-        if (isFlush != 0)
-        {
-            return isFlush;
-        }
-
-        if (IsFlush && other.IsFlush)
-        {
-            return CompareHighCard(other);
-        }
-
-        int straight = StraightValue.CompareTo(other.StraightValue);
-        if (straight != 0)
-        {
-            return straight;
-        }
-
-        int threeOfAKind = ThreeOfAKindValue.CompareTo(other.ThreeOfAKindValue);
-        if (threeOfAKind != 0)
-        {
-            return threeOfAKind;
-        }
-
-        int twoPair = TwoPairValue.CompareTo(other.TwoPairValue);
-        if (twoPair != 0)
-        {
-            return twoPair;
-        }
-
-        int pairValue = PairValue.CompareTo(other.PairValue);
-        if (pairValue != 0)
-        {
-            return pairValue;
-        }
-
-        return CompareHighCard(other);
-
+        return Probabilities.Rank.CompareTo(other.Probabilities.Rank);
     }
 
     private int CompareHighCard(Hand other)
@@ -240,5 +184,30 @@ public class Hand : IComparable<Hand>
         }
         ret += ")";
         return ret;
+    }
+    
+    public static Hand GetBestHandFromSevenCards(List<Card> cards)
+    {
+        List<Hand> hands = new List<Hand>();
+        cards.Sort();
+        for (int cardA = 0; cardA < 7; cardA++)
+        {
+            for (int cardB = cardA + 1; cardB < 7; cardB++)
+            {
+                for (int cardC = cardB + 1; cardC < 7; cardC++)
+                {
+                    for (int cardD = cardC + 1; cardD < 7; cardD++)
+                    {
+                        for (int cardE = cardD + 1; cardE < 7; cardE++)
+                        {
+                            List<Card> hand = new List<Card> { cards[cardA], cards[cardB], cards[cardC], cards[cardD], cards[cardE] };
+                            hands.Add(new Hand(hand, false));
+                        }
+                    }
+                }
+            }
+        }
+        hands.Sort();
+        return hands[0];
     }
 }

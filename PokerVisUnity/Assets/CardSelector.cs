@@ -27,19 +27,20 @@ public class CardSelector : MonoBehaviour
 
     private void Start()
     {
+        state = new HandState();
         cards = CreateCards();
         slots = CreateSlots().ToArray();
     }
 
     private IEnumerable<CardSlot> CreateSlots()
     {
-        yield return new CardSlot(SlotAPos);
-        yield return new CardSlot(SlotBPos);
-        yield return new CardSlot(SlotCPos);
-        yield return new CardSlot(SlotDPos);
-        yield return new CardSlot(SlotEPos);
-        yield return new CardSlot(SlotFPos);
-        yield return new CardSlot(SlotGPos);
+        yield return new CardSlot(SlotAPos, state, (handState, card) => handState.CardA = card);
+        yield return new CardSlot(SlotBPos, state, (handState, card) => handState.CardB = card);
+        yield return new CardSlot(SlotCPos, state, (handState, card) => handState.CardC = card);
+        yield return new CardSlot(SlotDPos, state, (handState, card) => handState.CardD = card);
+        yield return new CardSlot(SlotEPos, state, (handState, card) => handState.CardE = card);
+        yield return new CardSlot(SlotFPos, state, (handState, card) => handState.CardF = card);
+        yield return new CardSlot(SlotGPos, state, (handState, card) => handState.CardG = card);
     }
 
     private void Update()
@@ -71,6 +72,9 @@ public class CardSelector : MonoBehaviour
             SettleCardPositions();
         }
         wasSelecting = isSelecting;
+
+        RandomHandGenerator generator = state.GetRandomHandGenerator();
+        generator.GetRandomHand();
     }
 
     private void SettleCardPositions()
@@ -196,11 +200,25 @@ public class CardSelector : MonoBehaviour
 
     private class CardSlot
     {
+        private readonly HandState state;
+        private readonly Action<HandState, Card> stateSetter;
         public Transform SlotPosition { get; }
-        public CardInteractor Occupant { get; set; }
 
-        public CardSlot(Transform slotPosition)
+        private CardInteractor occupant;
+        public CardInteractor Occupant
         {
+            get { return occupant; }
+            set
+            {
+                occupant = value;
+                stateSetter(state, occupant?.Basis);
+            }
+        }
+
+        public CardSlot(Transform slotPosition, HandState state, Action<HandState, Card> stateSetter)
+        {
+            this.state = state;
+            this.stateSetter = stateSetter;
             SlotPosition = slotPosition;
         }
     }
