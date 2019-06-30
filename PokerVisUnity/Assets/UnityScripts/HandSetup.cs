@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CardSelector : MonoBehaviour
+public class HandSetup : MonoBehaviour
 {
-    private HandState state;
     public Transform SlotAPos;
     public Transform SlotBPos;
     public Transform SlotCPos;
@@ -19,7 +18,7 @@ public class CardSelector : MonoBehaviour
     private IEnumerable<CardSlot> slots;
 
     public Transform CardOptionsPool;
-    private IReadOnlyList<CardInteractor> cards;
+    private IReadOnlyList<CardInteractor> cardInteractors;
 
     private bool wasSelecting;
     private Vector3 cursorStartDragPoint;
@@ -27,20 +26,19 @@ public class CardSelector : MonoBehaviour
 
     private void Start()
     {
-        state = new HandState();
-        cards = CreateCards();
+        cardInteractors = CreateCards();
         slots = CreateSlots().ToArray();
     }
 
     private IEnumerable<CardSlot> CreateSlots()
     {
-        yield return new CardSlot(SlotAPos, state, (handState, card) => handState.CardA = card);
-        yield return new CardSlot(SlotBPos, state, (handState, card) => handState.CardB = card);
-        yield return new CardSlot(SlotCPos, state, (handState, card) => handState.CardC = card);
-        yield return new CardSlot(SlotDPos, state, (handState, card) => handState.CardD = card);
-        yield return new CardSlot(SlotEPos, state, (handState, card) => handState.CardE = card);
-        yield return new CardSlot(SlotFPos, state, (handState, card) => handState.CardF = card);
-        yield return new CardSlot(SlotGPos, state, (handState, card) => handState.CardG = card);
+        yield return new CardSlot(SlotAPos, (handState, card) => handState.HoleA = card);
+        yield return new CardSlot(SlotBPos, (handState, card) => handState.HoleB = card);
+        yield return new CardSlot(SlotCPos, (handState, card) => handState.FlopA = card);
+        yield return new CardSlot(SlotDPos, (handState, card) => handState.FlopB = card);
+        yield return new CardSlot(SlotEPos, (handState, card) => handState.FlopC = card);
+        yield return new CardSlot(SlotFPos, (handState, card) => handState.Turn = card);
+        yield return new CardSlot(SlotGPos, (handState, card) => handState.River = card);
     }
 
     private void Update()
@@ -72,14 +70,11 @@ public class CardSelector : MonoBehaviour
             SettleCardPositions();
         }
         wasSelecting = isSelecting;
-
-        RandomHandGenerator generator = state.GetRandomHandGenerator();
-        generator.GetRandomHand();
     }
 
     private void SettleCardPositions()
     {
-        HashSet<CardInteractor> cardHash = new HashSet<CardInteractor>(cards);
+        HashSet<CardInteractor> cardHash = new HashSet<CardInteractor>(cardInteractors);
         foreach (CardSlot slot in slots.Where(item => item.Occupant != null))
         {
             slot.Occupant.ReturnToPosition(slot);
@@ -186,7 +181,7 @@ public class CardSelector : MonoBehaviour
     {
         float minDist = float.MaxValue;
         CardInteractor ret = SelectedCard;
-        foreach (CardInteractor item in cards)
+        foreach (CardInteractor item in cardInteractors)
         {
             float dist = (item.CardObject.transform.position - cursorPos).sqrMagnitude;
             if(dist < minDist)
@@ -200,7 +195,6 @@ public class CardSelector : MonoBehaviour
 
     private class CardSlot
     {
-        private readonly HandState state;
         private readonly Action<HandState, Card> stateSetter;
         public Transform SlotPosition { get; }
 
@@ -211,13 +205,12 @@ public class CardSelector : MonoBehaviour
             set
             {
                 occupant = value;
-                stateSetter(state, occupant?.Basis);
+                stateSetter(Mainscript.Instance.HandState, occupant?.Basis);
             }
         }
 
-        public CardSlot(Transform slotPosition, HandState state, Action<HandState, Card> stateSetter)
+        public CardSlot(Transform slotPosition, Action<HandState, Card> stateSetter)
         {
-            this.state = state;
             this.stateSetter = stateSetter;
             SlotPosition = slotPosition;
         }

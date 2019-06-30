@@ -3,39 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-public class HandState
-{
-    public Card CardA { get; set; }
-    public Card CardB { get; set; }
-    public Card CardC { get; set; }
-    public Card CardD { get; set; }
-    public Card CardE { get; set; }
-    public Card CardF { get; set; }
-    public Card CardG { get; set; }
-
-    public IEnumerable<Card> Cards
-    {
-        get
-        {
-            yield return CardA;
-            yield return CardB;
-            yield return CardC;
-            yield return CardD;
-            yield return CardE;
-            yield return CardF;
-            yield return CardG;
-        }
-    }
-    
-    public RandomHandGenerator GetRandomHandGenerator()
-    {
-        return new RandomHandGenerator(Cards);
-    }
-}
-
 public class RandomHandGenerator
 {
-    private Random random = new Random();
+    private static readonly Random random = new Random();
     private static ReadOnlyCollection<int> BaseIndices;
     static RandomHandGenerator()
     {
