@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public static class HandScoresTable
+public class HandScoresTable
 {
-    public const int TotalPossibleHands = 2598960;
-
     public static IReadOnlyList<HandScore> StraightFlushes { get; }
     public static IReadOnlyList<HandScore> FourOfAKinds { get; }
     public static IReadOnlyList<HandScore> FullHouses { get; }
@@ -14,11 +12,10 @@ public static class HandScoresTable
     public static IReadOnlyList<HandScore> ThreeOfAKinds { get; }
     public static IReadOnlyList<HandScore> TwoPairs { get; }
     public static IReadOnlyList<HandScore> Pairs { get; }
-
     public static IReadOnlyList<HandScore> HighCards { get; }
 
     public static IReadOnlyDictionary<string, HandScore> All { get; }
-    public static IReadOnlyDictionary<string, ScoreProbabilities> Probabilities { get; }
+    public static IReadOnlyDictionary<string, int> Ranks { get; }
 
     static HandScoresTable()
     {
@@ -43,22 +40,17 @@ public static class HandScoresTable
         all.AddRange(Pairs);
         all.AddRange(HighCards);
         All = all.ToDictionary(item => item.Key, item => item);
-        Probabilities = GetScoreProbabilities();
+        Ranks = GetScoreProbabilities();
     }
 
-    private static Dictionary<string, ScoreProbabilities> GetScoreProbabilities()
+    private static Dictionary<string, int> GetScoreProbabilities()
     {
-        Dictionary<string, ScoreProbabilities> ret = new Dictionary<string, ScoreProbabilities>();
-        int betterHands = 0;
-        int worseHands = TotalPossibleHands;
+        Dictionary<string, int> ret = new Dictionary<string, int>();
         int rank = 0;
         foreach (KeyValuePair<string, HandScore> entry in All)
         {
-            worseHands -= entry.Value.Repeats;
-            ScoreProbabilities probabilities = new ScoreProbabilities(betterHands, worseHands, rank);
+            ret.Add(entry.Key, rank);
             rank++;
-            ret.Add(entry.Key, probabilities);
-            betterHands += entry.Value.Repeats;
         }
         return ret;
     }

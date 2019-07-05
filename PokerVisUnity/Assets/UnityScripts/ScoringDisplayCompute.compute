@@ -1,0 +1,17 @@
+﻿#pragma kernel ScoringDisplayCompute
+
+uint _PlayerHandIndex;
+uint _OpponentHandIndex;
+
+struct ScoreDisplayItem 
+{
+	uint playerWins;
+	uint opponentWins;
+};
+
+StructuredBuffer<ScoreDisplayItem> _Scores;
+
+[numthreads(128,1,1)]
+void ScoringDisplayCompute(uint3 id : SV_DispatchThreadID)
+{
+}

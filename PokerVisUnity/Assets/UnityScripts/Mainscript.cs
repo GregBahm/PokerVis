@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,30 +9,15 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 
-public class StateScoring
-{
-    public int RoundsPlayed { get; private set; }
-    public int Wins { get; private set; }
-    public float WinProbability { get { return RoundsPlayed == 0 ? .5f : (float)Wins / RoundsPlayed; } }
-    public void RegisterHandScore(Hand playerhand, IEnumerable<Hand> opponentHands)
-    {
-        RoundsPlayed++;
-        bool win = opponentHands.All(opponent => playerhand.Probabilities.Rank < opponent.Probabilities.Rank);
-        if(win)
-        {
-            Wins++;
-        }
-    }
-}
-
 public class Mainscript : MonoBehaviour
 {
     public int OpponentsCount;
+    public TextAsset HandFrequencyTable;
     public TextMeshPro WinProbabilityText;
 
     private Thread thread;
-    private object locker = new object();
 
+    private ScoreAnalysisTable scoreAnalysis;
     public HandState HandState;
     public StateScoring Scoring;
     private RandomHandGenerator playerHandGenerator;
@@ -51,6 +37,7 @@ public class Mainscript : MonoBehaviour
 
     private void Start()
     {
+        scoreAnalysis = new ScoreAnalysisTable(HandFrequencyTable);
         HandState = new HandState();
         RefreshGenerators();
         thread = new Thread(() => PerpetuallyScoreHands());
@@ -85,7 +72,7 @@ public class Mainscript : MonoBehaviour
 
     private void UpdateWinProbabilityLabel()
     {
-        string text = "Wind Probability: " + (int)(Scoring.WinProbability * 100) + "%";
+        string text = "Win Probability: " + (int)(Scoring.WinProbability * 100) + "%";
         WinProbabilityText.text = text;
     }
 
@@ -93,12 +80,9 @@ public class Mainscript : MonoBehaviour
     {
         if (!HandState.PlayerGeneratorUpToDate || !HandState.OpponentGeneratorUpToDate)
         {
-            lock (locker)
-            {
-                playerHandGenerator = HandState.GetPlayerHandGenerator();
-                opponentHandGenerator = HandState.GetOpponentHandGenerator();
-                Scoring = new StateScoring();
-            }
+            playerHandGenerator = HandState.GetPlayerHandGenerator();
+            opponentHandGenerator = HandState.GetOpponentHandGenerator();
+            Scoring = new StateScoring();
         }
     }
 }

@@ -4,26 +4,13 @@ using System.Linq;
 
 public class HandScore
 {
-    public const int StraightFlushRepeats = 4;
-    public const int FourOfAKindRepeats = 4;
-    public const int FullHouseRepeats = 24;
-    public const int FlushRepeats = 4;
-    public const int StraightRepeats = 1020;
-    public const int ThreeOfAKindRepeats = 64;
-    public const int TwoPairRepeats = 144;
-    public const int PairRepeats = 384;
-    public const int HighCardRepeats = 1020;
-
     public string Key { get; }
     public string FriendlyDescription { get; }
-
-    public int Repeats { get; }
     
-    public HandScore(string friendlyDescription, string key, int repeats)
+    public HandScore(string friendlyDescription, string key)
     {
         FriendlyDescription = friendlyDescription;
         Key = key;
-        Repeats = repeats;
     }
 
     public static string GetHandScoreKey(Hand hand)
@@ -79,7 +66,7 @@ public class HandScore
                             {
                                 string friendlyLabel = GetHighCardLabel(valA);
                                 string key = GetHighCardKey(valA, valB, valC, valD, valE);
-                                yield return new HandScore(friendlyLabel, key, HighCardRepeats);
+                                yield return new HandScore(friendlyLabel, key);
                             }
                         }
                     }
@@ -157,7 +144,7 @@ public class HandScore
                         {
                             string label = GetPairLabel(pairVal);
                             string key = GetPairKey(pairVal, valC, valD, valE);
-                            yield return new HandScore(label, key, PairRepeats);
+                            yield return new HandScore(label, key);
                         }
                     }
                 }
@@ -202,7 +189,7 @@ public class HandScore
                         {
                             string label = GetTwoPairsLabel(pairA, pairB);
                             string key = GetTwoPairsKey(pairA, pairB, kicker);
-                            yield return new HandScore(label, key, TwoPairRepeats);
+                            yield return new HandScore(label, key);
                         }
                     }
                 }
@@ -238,7 +225,7 @@ public class HandScore
                         {
                             string label = GetThreeOfAKindFriendlyName(firstThree);
                             string key = GetThreeOfAKindKey(firstThree, nextHighest, lowest);
-                            yield return new HandScore(label, key, ThreeOfAKindRepeats);
+                            yield return new HandScore(label, key);
                         }
                     }
                 }
@@ -287,7 +274,7 @@ public class HandScore
         for (int i = 14; i > 4; i--)
         {
             string straightKey = GetStraightKey(i);
-            yield return new HandScore(straightKey, straightKey, StraightRepeats);
+            yield return new HandScore(straightKey, straightKey);
         }
     }
 
@@ -323,7 +310,7 @@ public class HandScore
                             {
                                 string label = GetFlushFriendlyName(cardOne);
                                 string key = GetFlushKey(cardOne, cardTwo, cardThree, cardFour, cardFive);
-                                yield return new HandScore(label, key, FlushRepeats);
+                                yield return new HandScore(label, key);
                             }
                         }
                     }
@@ -378,7 +365,7 @@ public class HandScore
                 if(fullHouseThreeCard != fullHouseTwoCard)
                 {
                     string key = GetFullHouseKey(fullHouseThreeCard, fullHouseTwoCard);
-                    yield return new HandScore(key, key, FullHouseRepeats);
+                    yield return new HandScore(key, key);
                 }
             }
         }
@@ -407,7 +394,7 @@ public class HandScore
                 {
                     string key = GetFourOfAKindKey(mainValue, minorValue);
                     string friendlyName = GetFourOfAKindFriendlyName(mainValue);
-                    yield return new HandScore(friendlyName, key, FourOfAKindRepeats);
+                    yield return new HandScore(friendlyName, key);
                 }
             }
         }
@@ -430,7 +417,7 @@ public class HandScore
         for (int i = 14; i > 4; i--)
         {
             string key = GetStraightFlushKey(i);
-            yield return new HandScore(key, key, StraightFlushRepeats);
+            yield return new HandScore(key, key);
         }
     }
 

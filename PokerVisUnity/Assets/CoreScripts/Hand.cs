@@ -18,7 +18,7 @@ public class Hand : IComparable<Hand>
     public int PairValue { get; }
 
     public HandScore Score { get; }
-    public ScoreProbabilities Probabilities { get; }
+    public int Rank { get; }
 
     public Hand(Card cardA, Card cardB, Card cardC, Card cardD, Card cardE)
         : this(new List<Card> { cardA, cardB, cardC, cardD, cardE })
@@ -60,7 +60,7 @@ public class Hand : IComparable<Hand>
 
         string scoreTablesKey = HandScore.GetHandScoreKey(this);
         Score = HandScoresTable.All[scoreTablesKey];
-        Probabilities = HandScoresTable.Probabilities[scoreTablesKey];
+        Rank = HandScoresTable.Ranks[scoreTablesKey];
     }
 
     private int[] GetGroupingsArray()
@@ -142,7 +142,7 @@ public class Hand : IComparable<Hand>
     public int CompareTo(Hand other)
     {
         if (other == null) return 1;
-        return Probabilities.Rank.CompareTo(other.Probabilities.Rank);
+        return Rank.CompareTo(other.Rank);
     }
 
     private int CompareHighCard(Hand other)
