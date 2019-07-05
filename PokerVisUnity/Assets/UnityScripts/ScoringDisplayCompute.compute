@@ -1,4 +1,6 @@
-﻿#pragma kernel ScoringDisplayCompute
+﻿#pragma kernel PlayerCompute
+#pragma kernel OpponentCompute
+#pragma kernel ClearCompute
 
 uint _PlayerHandIndex;
 uint _OpponentHandIndex;
@@ -9,9 +11,23 @@ struct ScoreDisplayItem
 	uint opponentWins;
 };
 
-StructuredBuffer<ScoreDisplayItem> _Scores;
+RWStructuredBuffer<ScoreDisplayItem> _Scores;
 
-[numthreads(128,1,1)]
-void ScoringDisplayCompute(uint3 id : SV_DispatchThreadID)
+[numthreads(1,1,1)]
+void PlayerCompute(uint3 id : SV_DispatchThreadID)
 {
+	_Scores[_PlayerHandIndex].playerWins++;
+}
+
+[numthreads(1, 1, 1)]
+void OpponentCompute(uint3 id : SV_DispatchThreadID)
+{
+	_Scores[_OpponentHandIndex].opponentWins++;
+}
+
+
+[numthreads(128, 1, 1)]
+void ClearCompute(uint3 id : SV_DispatchThreadID)
+{
+	_Scores[id.x] = (ScoreDisplayItem)0;
 }

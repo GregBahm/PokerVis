@@ -30,6 +30,7 @@
 				float2 uv : TEXCOORD0;
 				float3 normal : NORMAL;
                 float4 vertex : SV_POSITION;
+				float2 wins : TEXCOORD2;
             };
 
 			uint _BoxCount;
@@ -39,6 +40,8 @@
 
 			v2f vert(appdata_full v, uint instanceId : SV_InstanceID)
 			{
+				v2f o;
+
 				float index = (float)instanceId / _BoxCount;
 				float4 offsetVert = v.vertex;
 				float span = (float)1 / _BoxCount;
@@ -48,9 +51,10 @@
 				offsetVert.x += offset;
 				float4 transformedVert = mul(_Transform, offsetVert);
 				transformedVert.xyz -= _PositionFixer;
-				ScoreDisplayData scoreData = _ScoreData[instanceId];
 
-                v2f o;
+				ScoreDisplayData scoreData = _ScoreData[instanceId];
+				o.wins = (float2)scoreData;
+
 				o.uv = v.texcoord;
                 o.vertex = UnityObjectToClipPos(transformedVert);
 				o.index = index;
@@ -60,7 +64,7 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-				return float4(i.normal, 1);
+				return float4(i.wins, 0, 1);
             }
             ENDCG
         }

@@ -1,12 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class ScoringDisplayManager : MonoBehaviour
 {
     public ComputeShader Computer;
     public ComputeBuffer DrawIndirectArgs { get; private set; }
     public Material BaseMat;
-    public int ComputeKernel { get; private set; }
+    private const int ThreadsCount = 128;
+    public int PlayerKernel { get; private set; }
+    public int OpponentKernel { get; private set; }
     public Mesh BaseMesh;
+    private int groupsCount;
 
     public static ScoringDisplayManager Instance;
 
@@ -18,7 +22,9 @@ public class ScoringDisplayManager : MonoBehaviour
     private void Start()
     {
         DrawIndirectArgs = GetDrawIndirectArgs();
-        ComputeKernel = Computer.FindKernel("ScoringDisplayCompute");
+        PlayerKernel = Computer.FindKernel("PlayerCompute");
+        OpponentKernel = Computer.FindKernel("OpponentCompute");
+        groupsCount = Mathf.CeilToInt((float)ScoreAnalysisTable.UniqueSevenCardHands / ThreadsCount);
     }
 
     private void OnDestroy()
@@ -39,5 +45,17 @@ public class ScoringDisplayManager : MonoBehaviour
         ComputeBuffer ret = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
         ret.SetData(args);
         return ret;
+    }
+
+    internal void DoCompute(ComputeBuffer scoresBuffer, int playerHand, int opponentHand)
+    {
+        Computer.SetInt("_PlayerHandIndex", playerHand);
+        Computer.SetInt("_OpponentHandIndex", opponentHand);
+
+        Computer.SetBuffer(PlayerKernel, "_Scores", scoresBuffer);
+        Computer.Dispatch(PlayerKernel, 1, 1, 1);
+
+        Computer.SetBuffer(OpponentKernel, "_Scores", scoresBuffer);
+        Computer.Dispatch(OpponentKernel, 1, 1, 1);
     }
 }

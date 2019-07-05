@@ -50,15 +50,25 @@ public class Mainscript : MonoBehaviour
         thread.Abort();
     }
 
+    public Hand GetRandomPlayerHand()
+    {
+        return playerHandGenerator.GetRandomHand();
+    }
+    
+    public Hand GetRandomOpponentHand()
+    {
+        return opponentHandGenerator.GetRandomHand();
+    }
+
     private void PerpetuallyScoreHands()
     {
         while (true)
         {
-            Hand playerHand = playerHandGenerator.GetRandomHand();
+            Hand playerHand = GetRandomPlayerHand();
             Hand[] opponentHands = new Hand[OpponentsCount];
             for (int i = 0; i < OpponentsCount; i++)
             {
-                opponentHands[i] = opponentHandGenerator.GetRandomHand();
+                opponentHands[i] = GetRandomOpponentHand();
             }
             Scoring.RegisterHandScore(playerHand, opponentHands);
         }

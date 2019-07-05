@@ -33,7 +33,15 @@ public class ScoringDisplay : MonoBehaviour
 
     private void Update()
     {
+        DoWinsLosses();
         DrawBoxes();
+    }
+
+    private void DoWinsLosses()
+    {
+        Hand playerHand = Mainscript.Instance.GetRandomPlayerHand();
+        Hand opponentHand = Mainscript.Instance.GetRandomOpponentHand();
+        ScoringDisplayManager.Instance.DoCompute(scoreDataBuffer, playerHand.Rank, opponentHand.Rank);
     }
 
     void DrawBoxes()
