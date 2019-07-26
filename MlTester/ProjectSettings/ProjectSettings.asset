@@ -295,7 +295,7 @@ PlayerSettings:
     - Oculus
     - OpenVR
   - m_BuildTarget: Metro
-    m_Enabled: 0
+    m_Enabled: 1
     m_Devices:
     - WindowsMR
   m_BuildTargetEnableVuforiaSettings: []
@@ -534,7 +534,7 @@ PlayerSettings:
   scriptingDefineSymbols: {}
   platformArchitecture: {}
   scriptingBackend:
-    Metro: 1
+    Metro: 2
   il2cppCompilerConfiguration: {}
   managedStrippingLevel: {}
   incrementalIl2cppBuild: {}
@@ -546,7 +546,7 @@ PlayerSettings:
   m_MobileRenderingPath: 1
   metroPackageName: Template3D
   metroPackageVersion: 1.0.0.0
-  metroCertificatePath: E:\PokerVis\MlTester\Assets\WSATestCertificate.pfx
+  metroCertificatePath: Assets\WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: DefaultCompany
   metroCertificateIssuer: DefaultCompany
@@ -604,7 +604,7 @@ PlayerSettings:
       UserNotificationListener: False
       VideosLibrary: False
       VoipCall: False
-      WebCam: False
+      WebCam: True
   metroTargetDeviceFamilies:
     Desktop: False
     Holographic: False

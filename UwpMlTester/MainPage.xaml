@@ -7,21 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <StackPanel>
-        <!--Image picker-->
-        <Button Name="ButtonRun"
-                    ToolTipService.ToolTip="Pick and evaluate and image"
-                    Width="80"
-                    Height="80"
-                    Click="ButtonRun_Click" 
-                    IsEnabled="True" 
-                    HorizontalAlignment="Left" 
-                    VerticalAlignment="Top">
-            <Button.Content>
-                <SymbolIcon Symbol="Upload" />
-            </Button.Content>
-        </Button>
         <Grid
-            Width="1000"
+            Width="800"
             Height="600">
 
             <CaptureElement x:Name="MyWebcam"

@@ -7,7 +7,7 @@ public class MLImageCapture : MonoBehaviour
 {
     private HoloLensCamera pvCamera;
     bool startCamera;
-
+    
 #if CAN_USE_UWP_TYPES
     public int FrameIndex;
     public bool GrabFrame;

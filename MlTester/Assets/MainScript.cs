@@ -4,12 +4,8 @@ using UnityEngine;
 
 public class MainScript : MonoBehaviour
 {
-    public Object Test;
-
     private void Start()
     {
-        var hmm = Test as TextAsset;
-
     }
 
     private void LoadModel()

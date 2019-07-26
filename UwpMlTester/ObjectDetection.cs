@@ -1,10 +1,4 @@
-﻿// <copyright file="ObjectDetection.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-
-/// Script for CustomVision's exported object detection model.
-
-namespace CustomVision
+﻿namespace CustomVision
 {
     using System;
     using System.Collections.Generic;
@@ -14,6 +8,7 @@ namespace CustomVision
     using Windows.AI.MachineLearning;
     using Windows.Media;
     using Windows.Storage;
+    using Windows.Storage.Streams;
 
     public sealed class BoundingBox
     {
@@ -72,9 +67,11 @@ namespace CustomVision
         {
             this.model = await LearningModel.LoadFromStorageFileAsync(file);
             this.session = new LearningModelSession(this.model);
-
-            Debug.Assert(this.model.InputFeatures.Count == 1, "The number of input must be 1");
-            Debug.Assert(this.model.OutputFeatures.Count == 1, "The number of output must be 1");
+        }
+        public void Init(IRandomAccessStreamReference stream)
+        {
+            this.model = LearningModel.LoadFromStream(stream);
+            this.session = new LearningModelSession(this.model);
         }
 
         /// <summary>

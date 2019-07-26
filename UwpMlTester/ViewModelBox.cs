@@ -11,7 +11,7 @@ namespace SampleOnnxEvaluationApp
 {
     public class ViewModelBox
     {
-        const int CanvasWidth = 1000;
+        const int CanvasWidth = 800;
         const int CanvasHeight = 600;
 
         private readonly CustomVision.PredictionModel model;
